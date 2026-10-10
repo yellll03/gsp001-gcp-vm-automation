@@ -17,7 +17,10 @@ gcloud compute firewall-rules create default-allow-http --network=default \
 gcloud compute firewall-rules create default-allow-https --network=default \
   --allow=tcp:443 --target-tags=https-server --source-ranges=0.0.0.0/0 2>/dev/null
 
-# Task 1: gcelab (skipped if it already exists)
+# Task 1: gcelab. A leftover Debian 11 VM (EOL, apt is broken) is deleted and rebuilt on Debian 12.
+if gcloud compute disks describe gcelab --zone="$ZONE" --format='get(sourceImage)' 2>/dev/null | grep -q 'debian-11'; then
+  gcloud compute instances delete gcelab --zone="$ZONE" --quiet
+fi
 if ! gcloud compute instances describe gcelab --zone="$ZONE" >/dev/null 2>&1; then
   gcloud compute instances create gcelab \
     --project="$DEVSHELL_PROJECT_ID" --zone="$ZONE" --machine-type=e2-medium \
